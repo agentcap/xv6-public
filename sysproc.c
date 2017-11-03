@@ -37,6 +37,12 @@ sys_waitx(void)
 }
 
 int
+sys_cps(void)
+{
+  return cps();
+}
+
+int
 sys_wait(void)
 {
   return wait();
