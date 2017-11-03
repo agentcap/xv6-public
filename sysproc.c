@@ -20,6 +20,22 @@ sys_exit(void)
   return 0;  // not reached
 }
 
+// Added sys_waitx call to load parameters and calling waitx
+int 
+sys_waitx(void)
+{
+  int *wtime;
+  int *rtime;
+  
+  if(argptr(0, (char**)&wtime, sizeof(int)) < 0)
+    return -1;
+
+  if(argptr(1, (char**)&rtime, sizeof(int)) < 0)
+    return -1;
+
+  return waitx(wtime, rtime);
+}
+
 int
 sys_wait(void)
 {
