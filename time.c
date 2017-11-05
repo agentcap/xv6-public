@@ -11,13 +11,13 @@ int main (int argc,char *argv[])
 	pid = fork();
 	if (pid == 0)
   	{	
-  		exec(argv[1], argv);
+  		exec(argv[1], &argv[1]);
     	printf(1, "exec %s failed\n", argv[1]);
     }
   	else
  	{
     	status = waitx(&a, &b);
- 	    printf(1, "Wait Time = %d\n Run Time = %d with Status %d \n", a, b, status); 
+ 	    printf(1, "Wait Time = %d\n Run Time = %d with Status %d Child id %d\n", a, b, status,pid); 
   }  
  	exit();
 }

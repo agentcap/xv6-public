@@ -52,6 +52,8 @@ struct proc {
 
   // Added the  fields stime, etime, rtime and iotime
   int stime, etime, rtime, iotime;
+
+  int priority;                // Process priority (0-100)
 };
 
 // Process memory is laid out contiguously, low addresses first:

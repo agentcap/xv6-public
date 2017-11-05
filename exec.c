@@ -99,6 +99,7 @@ exec(char *path, char **argv)
   curproc->sz = sz;
   curproc->tf->eip = elf.entry;  // main
   curproc->tf->esp = sp;
+  // Add here to change the priority of the process that are allocated using exe function.
   switchuvm(curproc);
   freevm(oldpgdir);
   return 0;

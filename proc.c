@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 60;
 
   release(&ptable.lock);
 
@@ -381,6 +382,8 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *p1;
+
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -389,10 +392,22 @@ scheduler(void)
     sti();
 
     // Loop over process table looking for process to run.
+    struct proc *highP;
+
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+
+      highP = p;
+      for(p1 = ptable.proc; p1 < &ptable.proc[NPROC];p1++) {
+        if(p1->state != RUNNABLE)
+          continue;
+        if( highP->priority > p1->priority)
+          highP = p1;
+      }
+
+      p = highP;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -601,18 +616,36 @@ cps(void)
   sti();
 
   acquire(&ptable.lock);
-  cprintf("Name\tPid\tstate\t\n");
+  cprintf("Name\tPid\tstate\tPriority\n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
     if(p->state == SLEEPING)
-      cprintf("%s\t%d\tSLEEPING\t\n", p->name, p->pid);
+      cprintf("%s \t%d \tSLEEPING \t%d \n", p->name, p->pid, p->priority);
     else if(p->state == RUNNING)
-      cprintf("%s\t%d\tRUNNING\t\n", p->name, p->pid);
+      cprintf("%s \t%d \tRUNNING \t%d \n", p->name, p->pid, p->priority);
     else if(p->state == RUNNABLE)
-      cprintf("%s\t%d\tRUNNABLE\t\n", p->name, p->pid);
+      cprintf("%s \t%d \tRUNNABLE \t%d \n", p->name, p->pid, p->priority);
   }
 
   release(&ptable.lock);
 
   return 22;
+}
+
+int
+set_priority(int priority)
+{
+  struct proc *p = myproc();
+  int oldPriority = 0;
+  acquire(&ptable.lock);
+  oldPriority = p->priority;
+  p->priority = priority;
+  release(&ptable.lock);
+  cprintf("Updated priority\n");
+  if(oldPriority > priority) {
+    cprintf("Yeilding the process");
+    yield();
+  }
+
+  return oldPriority;
 }
